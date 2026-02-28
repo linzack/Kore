@@ -39,34 +39,13 @@ public class PluginUrlUtils {
      */
     @Nullable
     public static String toDefaultYouTubePluginUrl(Uri playUri) {
-        String host = playUri.getHost();
-
-        if (host.endsWith("youtube.com")) {
-            String videoId = playUri.getQueryParameter("v");
-            String playlistId = playUri.getQueryParameter("list");
-            Uri.Builder pluginUri = new Uri.Builder()
-                    .scheme("plugin")
-                    .authority("plugin.video.youtube")
-                    .path("play/");
-            boolean valid = false;
-            if (videoId != null) {
-                valid = true;
-                pluginUri.appendQueryParameter("video_id", videoId);
-            }
-            if (playlistId != null) {
-                valid = true;
-                pluginUri.appendQueryParameter("playlist_id", playlistId)
-                        .appendQueryParameter("order", "default");
-            }
-            if (valid) {
-                return pluginUri.build().toString();
-            }
-        } else if (host.endsWith("youtu.be")) {
-            return "plugin://plugin.video.youtube/play/?video_id="
-                   + playUri.getLastPathSegment();
+        try {
+            return "plugin://plugin.video.youtube/uri2addon/?uri="
+                   + URLEncoder.encode(playUri.toString(), StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            LogUtils.LOGD(TAG, "Unsupported Encoding Exception: " + e);
+            return null;
         }
-
-        return null;
     }
 
     /**
